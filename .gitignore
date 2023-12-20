@@ -4,8 +4,10 @@ flan-t5-large-grammar-synthesis/*
 roberta-base-cola/*
 
 
-# Created by https://www.toptal.com/developers/gitignore/api/jupyternotebooks,python
-# Edit at https://www.toptal.com/developers/gitignore?templates=jupyternotebooks,python
+
+
+# Created by https://www.toptal.com/developers/gitignore/api/jupyternotebooks,python,venv
+# Edit at https://www.toptal.com/developers/gitignore?templates=jupyternotebooks,python,venv
 
 ### JupyterNotebooks ###
 # gitignore template for Jupyter Notebooks
@@ -190,5 +192,16 @@ poetry.toml
 # LSP config files
 pyrightconfig.json
 
-# End of https://www.toptal.com/developers/gitignore/api/jupyternotebooks,python
+### venv ###
+# Virtualenv
+# http://iamzed.com/2009/05/07/a-primer-on-virtualenv/
+[Bb]in
+[Ii]nclude
+[Ll]ib
+[Ll]ib64
+[Ll]ocal
+[Ss]cripts
+pyvenv.cfg
+pip-selfcheck.json
 
+# End of https://www.toptal.com/developers/gitignore/api/jupyternotebooks,python,venv

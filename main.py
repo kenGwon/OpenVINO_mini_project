@@ -99,29 +99,21 @@ grayscale_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 # "text-recognition-resnet-fc" 모델이 제공하는 encode output 문자열은 다음과 같음(나머지 문자열은 지원하지 않음)
 letters = "~0123456789abcdefghijklmnopqrstuvwxyz"
 
-# Prepare an empty list for annotations.
 annotations = list()
 cropped_images = list()
-# fig, ax = plt.subplots(len(boxes), 1, figsize=(5,15), sharex=True, sharey=True)
-# Get annotations for each crop, based on boxes given by the detection model.
 
 for i, crop in enumerate(boxes):
-    # Get coordinates on corners of a crop.
     (x_min, y_min, x_max, y_max) = map(int, multiply_by_ratio(ratio_x, ratio_y, crop))
     image_crop = run_preprocesing_on_crop(grayscale_image[y_min:y_max, x_min:x_max], (W, H))
 
-    # Run inference with the recognition model.
     result = recognition_compiled_model([image_crop])[recognition_output_layer]
-
-    # Squeeze the output to remove unnecessary dimension.
     recognition_results_test = np.squeeze(result)
 
-    # Read an annotation based on probabilities from the output layer.
+    # 크롭된 이미지에서 문자 하나하나씩 파싱하여 문자열 생성
     annotation = list()
     for letter in recognition_results_test:
-        parsed_letter = letters[letter.argmax()]
+        parsed_letter = letters[letter.argmax()] 
 
-        # Returning 0 index from `argmax` signalizes an end of a string.
         if parsed_letter == letters[0]:
             break
         annotation.append(parsed_letter)
@@ -133,9 +125,10 @@ boxes_with_annotations = list(zip(boxes, annotations))
 
 
 
+# plt.figure(figsize=(12, 12))
+# plt.imshow(convert_result_to_image(image, resized_image, boxes_with_annotations, conf_labels=True))
 
-plt.figure(figsize=(12, 12))
-plt.imshow(convert_result_to_image(image, resized_image, boxes_with_annotations, conf_labels=True))
+cv2.imshow("result", convert_result_to_image(image, resized_image, boxes_with_annotations, conf_labels=True))
 
 
 ocr_text_result = [
@@ -143,36 +136,11 @@ ocr_text_result = [
     for _, annotation in sorted(zip(boxes, annotations), key=lambda x: x[0][0] ** 2 + x[0][1] ** 2)
 ]
 
-# ocr_text_result = [
-#     annotation
-#     for _, annotation in zip(boxes, annotations)
-# ]
-
-# temp = [
-#     box
-#     for box, _ in zip(boxes, annotations)
-# ]
-
-
-# resultresultresult = list()
-# for box, annotation in zip(boxes, annotations):
-#     (x_min, y_min, x_max, y_max) = box[:-1]
-#     resultresultresult.append((int(x_min), int(y_min), annotation))
-
-# sorted_resultresultresult = sorted(resultresultresult, key=lambda x: (x[1], x[0]))  # 두 번째 요소를 기준으로 정렬
-# print(sorted_resultresultresult)
-
-# final_result = [
-#     annotation 
-#     for _, _, annotation in sorted_resultresultresult
-# ]
-
-# print("으악!!!")
-print(ocr_text_result)
-# print(temp)
-
 result_string = ' '.join(ocr_text_result)
 print(result_string)
+
+########################################################################################################
+
 
 
 
