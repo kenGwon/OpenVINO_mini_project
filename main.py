@@ -6,8 +6,14 @@ import numpy as np
 import openvino as ov
 from IPython.display import Markdown, display
 from PIL import Image
+from transformers import pipeline, AutoTokenizer
+from optimum.intel.openvino import OVModelForSeq2SeqLM, OVModelForSequenceClassification
+import re
+import transformers
+from diff_match_patch import diff_match_patch# 문자열 바뀐 부분 확인
 from notebook_utils import load_image
 
+image = cv2.imread("_input/sample_letter.jpg")
 
 def multiply_by_ratio(ratio_x, ratio_y, box):
     return [
@@ -72,7 +78,7 @@ detection_compiled_model = core.compile_model(model=detection_model, device_name
 # 텍스트 detection 모델의 input shape에 맞게 이미지 transform 준비
 detection_input_layer = detection_compiled_model.input(0)
 N, C, H, W = detection_input_layer.shape
-image = cv2.imread("sample_letter.jpg")
+# image = cv2.imread("_input/sample_letter.jpg")
 resized_image = cv2.resize(image, (W, H))
 (real_y, real_x), (resized_y, resized_x) = image.shape[:2], resized_image.shape[:2]
 ratio_x, ratio_y = real_x / resized_x, real_y / resized_y
@@ -103,17 +109,22 @@ annotations = list()
 cropped_images = list()
 
 for i, crop in enumerate(boxes):
+    # Get coordinates on corners of a crop.
     (x_min, y_min, x_max, y_max) = map(int, multiply_by_ratio(ratio_x, ratio_y, crop))
     image_crop = run_preprocesing_on_crop(grayscale_image[y_min:y_max, x_min:x_max], (W, H))
 
+    # Run inference with the recognition model.
     result = recognition_compiled_model([image_crop])[recognition_output_layer]
+
+    # Squeeze the output to remove unnecessary dimension.
     recognition_results_test = np.squeeze(result)
 
-    # 크롭된 이미지에서 문자 하나하나씩 파싱하여 문자열 생성
+    # Read an annotation based on probabilities from the output layer.
     annotation = list()
     for letter in recognition_results_test:
-        parsed_letter = letters[letter.argmax()] 
+        parsed_letter = letters[letter.argmax()]
 
+        # Returning 0 index from `argmax` signalizes an end of a string.
         if parsed_letter == letters[0]:
             break
         annotation.append(parsed_letter)
@@ -123,25 +134,31 @@ for i, crop in enumerate(boxes):
 
 boxes_with_annotations = list(zip(boxes, annotations))
 
-
-
-# plt.figure(figsize=(12, 12))
-# plt.imshow(convert_result_to_image(image, resized_image, boxes_with_annotations, conf_labels=True))
-
-cv2.imshow("result", convert_result_to_image(image, resized_image, boxes_with_annotations, conf_labels=True))
-
-
 ocr_text_result = [
     annotation
     for _, annotation in sorted(zip(boxes, annotations), key=lambda x: x[0][0] ** 2 + x[0][1] ** 2)
 ]
 
 result_string = ' '.join(ocr_text_result)
+
 print(result_string)
 
-########################################################################################################
+##################################################################################################################
+##################################################################################################################
+##################################################################################################################
+
+grammar_checker_model_id = "textattack/roberta-base-CoLA"
+grammar_checker_dir = Path("model/roberta-base-cola")
+grammar_checker_tokenizer = AutoTokenizer.from_pretrained(grammar_checker_model_id)
+grammar_checker_model = OVModelForSequenceClassification.from_pretrained(grammar_checker_dir, device='AUTO')
+
+grammar_checker_pipe = pipeline("text-classification", model=grammar_checker_model, tokenizer=grammar_checker_tokenizer)
 
 
-
-
+grammar_corrector_model_id = "pszemraj/flan-t5-large-grammar-synthesis"
+grammar_corrector_dir = Path("model/flan-t5-large-grammar-synthesis")
+grammar_corrector_tokenizer = AutoTokenizer.from_pretrained(grammar_corrector_model_id)
+grammar_corrector_model = OVModelForSeq2SeqLM.from_pretrained(grammar_corrector_dir, device='AUTO')
+    
+grammar_corrector_pipe = pipeline("text2text-generation", model=grammar_corrector_model, tokenizer=grammar_corrector_tokenizer)
 

@@ -2,9 +2,26 @@
 권강현, 홍종현, 김진완
 
 ## 미니 팀 깃허브 주소
-
 https://github.com/kenGwon/OpenVINO_mini_project 
 
+## 파이썬 가상환경 설정
+```sh
+python3 -m venv .venv
+pip install -r requirements.txt
+source .venv/bin/activate
+```
+
+## 모델 다운로드
+```sh
+python3 install.py
+```
+
+## 모델 실행
+```sh
+python3 main.py
+```
+
+## 결과 이미지
 
 
 
@@ -14,7 +31,7 @@ https://github.com/kenGwon/OpenVINO_mini_project
 This example makes unknown faces blur except identified faces.
 
 ## Member
-- Jinho Kim
+- Gang
 - Eunyoung Kim
 
 ## Enviornment
