@@ -21,68 +21,36 @@ python3 install.py
 python3 main.py
 ```
 
-## 결과 이미지
+## 모델 시나리오
+![senario](./README_img/senario.png)<br>
 
 
+## 구현 결과
 
+### part1. ocr 후 string생성
 
-# Look at me
----------------------------
-This example makes unknown faces blur except identified faces.
+#### 최초 input 이미지
+![initial_input](./README_img/initial_input.jpg)<br>
+<br>
 
-## Member
-- Gang
-- Eunyoung Kim
+![ocr_img](./README_img/ocr_img.png)<br>
+- 문자열 생성
+  - 기대한 문자열: <br> dear my friend did you know that it is my friends house in englang that is more bigger than my house i go to house at sunday see you later best ken gwon
 
-## Enviornment
-- openvino_2023.1.0
-- python venv .omz_venv
-- source /opt/intel/openvino_2023.1.0/setupvars.sh
+  - 구현 결과: <br> dear did my you friend it is know my friends that that is more i house go to bigger her see house in you than later england at sunday my house best ken gwon
 
-## Model Download and Convert
-```sh
-omz_downloader --list models.lst
-omz_converter --list models.lst
-```
+- 문자열을 좌상단에서부터 이어 붙이기를 기대하고 알고리즘을 구성했지만, 의도한 대로 동작하지는 않음.
 
-## Using face_recognition_demo
-- Percentage check
-```sh
-if identity.id != FaceIdentifier.UNKNOWN_ID:
-            if percent < 70:
-                identity.id = FaceIdentifier.UNKNOWN_ID
+### part2. 문법 체크 후 문자열 생성
+- 모델이 받은 input 문자열: <br> dear did my you friend it is know my friends that that is more i house go to bigger her see house in you than later england at sunday my house best ken gwon
 
-            text += ' %.2f%%' % (100.0 * (1 - identity.distance))
-```
-- Make unknown blur
-```sh
-if identity.id == FaceIdentifier.UNKNOWN_ID:
-            face_roi = frame[ymin:ymax, xmin:xmax]
-            face_roi = cv2.GaussianBlur(face_roi, (0,0), 10)
-            frame[ymin:ymax, xmin:xmax] = face_roi
-```
+- 모델이 내놓은 output 문자열: <br> Do you know my friend that it is more important to go to her house in London than to go to my house in Beijing on a Sunday? 
 
-## Make database
-- make code that capture image on camera with python
-- using these images to identify person
+- 결과적으로 원본 내용이 완전히 변형되버림
 
-## Running
-create run.sh file to run this code
-```sh
-#!/bin/bash
+### part3. 문자열을 바탕으로 image 생성
+- 모델이 받은 input 문자열: <br> Do you know my friend that it is more important to go to her house in London than to go to my house in Beijing on a Sunday? 
 
-python ./face_recognition_demo.py \
-  -i 4 \
-  -m_fd intel/face-detection-retail-0004/FP16/face-detection-retail-0004.xml \
-  -m_lm intel/landmarks-regression-retail-0009/FP16/landmarks-regression-retail-0009.xml \
-  -m_reid intel/face-reidentification-retail-0095/FP16/face-reidentification-retail-0095.xml \
-  -t_fd 0.8 -t_id 0.8 \
-  --verbose       \
-  -fg "/home/kimjinho/face_gallery/captured_images"
+- 모델이 내놓은 output image:
+![final_output](./README_img/final_output.png)<br>
 
-
-./run.sh
-```
-
-## Result Image
-![Result sample](pictures/sample_result.png)
