@@ -13,7 +13,6 @@ urllib.request.urlretrieve(
     url='https://raw.githubusercontent.com/openvinotoolkit/openvino_notebooks/main/notebooks/utils/notebook_utils.py',
     filename='notebook_utils.py'
 )
-from notebook_utils import load_image
 
 import os
 

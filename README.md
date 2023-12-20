@@ -1,5 +1,9 @@
 # 오픈비노 미니 프로젝트
-권강현, 홍종현, 김진완
+
+## 팀 멤버
+- 권강현
+- 홍종현
+- 김진완
 
 ## 미니 팀 깃허브 주소
 https://github.com/kenGwon/OpenVINO_mini_project 
@@ -18,12 +22,14 @@ python3 install.py
 
 ## 모델 실행
 ```sh
-python3 main.py
+jupyter lab
 ```
+실행 후  main.ipynb를 실행
+
 
 ## 모델 시나리오
-![senario](./README_img/senario.png)<br>
-
+(이미지를 클릭하면 발표자료로 이동)
+[![senario](./README_img/senario.png)](https://docs.google.com/presentation/d/1WPAQpurEqZyCNxfr_fwnjwBaS-ryJNfAreqaZztmv0w/edit?usp=sharing)<br>
 
 ## 구현 결과
 
